@@ -1,0 +1,17 @@
+SELECT Day, 
+       Total_Fees, 
+       ROUND(SUM(Total_Fees) OVER (ORDER BY Day), 2) AS Cumulative_Fees,
+       Volume,
+       Number_of_Transactions
+FROM (
+    SELECT block_date AS Day, 
+           ROUND(SUM(amount_usd) * 0.003, 2) AS Total_Fees,
+           ROUND(SUM(amount_usd), 2) AS Volume,
+           COUNT(DISTINCT tx_hash) AS Number_of_Transactions
+    from uniswap_v2_ethereum.trades
+    where 
+    token_sold_symbol = 'OLAS'
+    or token_bought_symbol = 'OLAS'
+    AND project_contract_address = 0x09d1d767edf8fa23a64c51fa559e0688e526812f
+    GROUP BY block_date
+) AS subquery;
